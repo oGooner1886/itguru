@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo.svg";
 import user from "../assets/user_ico.svg";
