@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [react()],
   base: "itguru",
   build: {
-    outDir: "build",
+    outDir: "/build/",
   },
 });
