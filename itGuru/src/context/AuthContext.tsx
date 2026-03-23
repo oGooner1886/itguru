@@ -1,16 +1,12 @@
-import React, { createContext, useContext, useState } from "react";
+import { useState, type ReactNode } from "react";
+import { AuthContext } from "./AuthContextInstance";
 
-interface AuthContextType {
-  token: string | null;
-  login: (token: string, remember: boolean) => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState(
-    localStorage.getItem("token") || sessionStorage.getItem("token"),
-  );
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [token, setToken] = useState<string | null>(() => {
+    const saved =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    return saved;
+  });
 
   const login = (newToken: string, remember: boolean) => {
     const storage = remember ? localStorage : sessionStorage;
@@ -18,16 +14,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken(newToken);
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    setToken(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ token, login }}>
+    <AuthContext.Provider value={{ token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
 };

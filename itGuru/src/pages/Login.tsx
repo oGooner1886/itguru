@@ -1,15 +1,15 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo.svg";
 import user from "../assets/user_ico.svg";
 import lock from "../assets/lock.svg";
 import eye from "../assets/eye-off.svg";
-
 import { api } from "../api";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export const Login = () => {
-  const { login } = useAuth();
+  const { login, token } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
@@ -19,28 +19,36 @@ export const Login = () => {
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [error, setError] = useState("");
-
+  useEffect(() => {
+    if (token) {
+      navigate("/products", { replace: true });
+    }
+  }, [token, navigate]);
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+
     try {
       const res = await api.post("/auth/login", {
         username: formData.username,
         password: formData.password,
       });
-      login(res.data.token, formData.remember);
-      navigate("./products");
-    } catch {
-      setError("Неверный логин или пароль");
+
+      if (res.data.accessToken) {
+        login(res.data.accessToken, formData.remember);
+        navigate("/products", { replace: true });
+      }
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const serverMessage = err.response?.data?.message;
+        setError(serverMessage || "Неверный логин или пароль");
+        console.error("Ошибка API:", serverMessage);
+      } else {
+        setError("Произошла непредвиденная ошибка");
+        console.error("Неизвестная ошибка:", err);
+      }
     }
   };
-  useEffect(() => {
-    const savedToken =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (savedToken) {
-      navigate("/products");
-    }
-  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F9FB]">

@@ -1,15 +1,14 @@
 import { Routes, Route, Navigate, HashRouter } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import { Login } from "./pages/Login";
 import { Products } from "./pages/Products";
 import React from "react";
+import { useAuth } from "./hooks/useAuth";
 
 const PrivateRoute = ({ children }: { children: React.JSX.Element }) => {
   const { token } = useAuth();
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
+
+  return token ? children : <Navigate to="/login" replace />;
 };
 
 export default function App() {
@@ -26,7 +25,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/products" />} />
+          <Route path="*" element={<Navigate to="/products" replace />} />
         </Routes>
       </HashRouter>
     </AuthProvider>
