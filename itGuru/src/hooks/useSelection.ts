@@ -15,6 +15,7 @@ export const useSelection = (products: Product[], total: number) => {
     return isPageSelected && !isGlobalSelected && total > products.length;
   }, [isPageSelected, isGlobalSelected, total, products.length]);
 
+
   const handleSelectPage = useCallback(() => {
     if (isGlobalSelected) {
       setIsGlobalSelected(false);
